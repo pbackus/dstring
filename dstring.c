@@ -33,7 +33,7 @@ dstr_new(size_t capacity)
 	return p->data;
 }
 
-/* dstr_delete: free all memory associated with a string
+/* dstr_delete: free all memory used by a string
  *
  * Public method
  */
@@ -57,10 +57,9 @@ dstr_length(const char *self)
 
 /* dstr_append: concatenate a string with another string or char[]
  *
- * If the resulting string would cause the allocation size to overflow
- * SIZE_MAX, it is silently truncated. The user is expected to check this
- * condition using dstr_length and dstr_max_length if they wish to avoid
- * truncation.
+ * If doing so would cause the allocation size to exceed SIZE_MAX, it is
+ * silently truncated. The user is expected to check this condition using
+ * dstr_length and dstr_max_length if they wish to avoid truncation.
  *
  * Public method
  */
