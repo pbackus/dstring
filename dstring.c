@@ -63,10 +63,10 @@ dstr_length(const char *self)
  *
  * Public method
  */
-char *
-dstr_append(char *self, const char *other, size_t length)
+void
+dstr_append(char **selfp, const char *other, size_t length)
 {
-	struct string_header *p = (struct string_header *) self - 1;
+	struct string_header *p = (struct string_header *) *selfp - 1;
 	size_t new_length;
 
 	if (p->length > dstr_max_length - length) {
@@ -87,7 +87,8 @@ dstr_append(char *self, const char *other, size_t length)
 	p->length = new_length;
 	p->data[p->length] = '\0';
 
-	return p->data;
+	*selfp = p->data;
+	return;
 
 error:
 	/* Out of memory */
@@ -99,11 +100,11 @@ error:
  *
  * Public method
  */
-char *
-dstr_assign(char *self, const char *other, size_t length)
+void
+dstr_assign(char **selfp, const char *other, size_t length)
 {
-	struct string_header *p = (struct string_header *) self - 1;
+	struct string_header *p = (struct string_header *) *selfp - 1;
 
 	p->length = 0;
-	return dstr_append(self, other, length);
+	dstr_append(selfp, other, length);
 }

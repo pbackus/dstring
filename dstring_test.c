@@ -35,7 +35,7 @@ test_assign(void)
 	const char testval[] = "Lorem ipsum dolor sit amet";
 	const size_t testlen = strlen(testval);
 
-	s = dstr_assign(s, testval, testlen);
+	dstr_assign(&s, testval, testlen);
 
 	mu_assert("FAIL test_assign: incorrect length",
 		dstr_length(s) == testlen
@@ -62,8 +62,8 @@ test_append(void)
 	const char testval1[] = "Lorem ipsum ";
 	const char testval2[] = "dolor sit amet";
 
-	s = dstr_assign(s, testval1, strlen(testval1));
-	s = dstr_append(s, testval2, strlen(testval2));
+	dstr_assign(&s, testval1, strlen(testval1));
+	dstr_append(&s, testval2, strlen(testval2));
 
 	mu_assert("FAIL test_append: incorrect length",
 		dstr_length(s) == strlen(testval1) + strlen(testval2)

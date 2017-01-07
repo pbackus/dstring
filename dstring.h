@@ -10,8 +10,8 @@ void dstr_delete(char *self);
 
 /* Public methods */
 size_t dstr_length(const char *self);
-char *dstr_assign(char *self, const char *other, size_t length);
-char *dstr_append(char *self, const char *other, size_t length);
+void dstr_assign(char **selfp, const char *other, size_t length);
+void dstr_append(char **selfp, const char *other, size_t length);
 
 /* Constants */
 const size_t dstr_max_length;
