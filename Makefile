@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -std=c99 -pedantic -Wall
+CFLAGS= -g -std=c99 -pedantic -Wall
 
 check: dstring_test
 	./dstring_test
