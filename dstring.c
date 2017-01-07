@@ -12,12 +12,14 @@ struct string_header {
 	char data[];
 };
 
-/* new: allocate a new, empty string
+const size_t dstr_max_length = (SIZE_MAX - sizeof (struct string_header) - 1);
+
+/* dstr_new: allocate a new, empty string
  *
  * Public method
  */
-static char *
-new(size_t capacity)
+char *
+dstr_new(size_t capacity)
 {
 	capacity = (capacity > MIN_CAPACITY) ? capacity : MIN_CAPACITY;
 	struct string_header *p = malloc(sizeof *p + capacity + 1);
@@ -31,45 +33,45 @@ new(size_t capacity)
 	return p->data;
 }
 
-/* delete: free all memory associated with a string
+/* dstr_delete: free all memory associated with a string
  *
  * Public method
  */
-static void
-delete(char *self)
+void
+dstr_delete(char *self)
 {
 	struct string_header *p = (struct string_header *) self - 1;
 	free(p);
 }
 
-/* length: return the length of a string
+/* dstr_length: return the length of a string
  *
  * Public method
  */
-static size_t
-length(const char *self)
+size_t
+dstr_length(const char *self)
 {
 	struct string_header *p = (struct string_header *) self - 1;
 	return p->length;
 }
 
-/* append: concatenate a string with another string or char[]
+/* dstr_append: concatenate a string with another string or char[]
  *
  * If the resulting string would cause the allocation size to overflow
  * SIZE_MAX, it is silently truncated. The user is expected to check this
- * condition using String.length and String.max_length if they wish to avoid
+ * condition using dstr_length and dstr_max_length if they wish to avoid
  * truncation.
  *
  * Public method
  */
-static char *
-append(char *self, const char *other, size_t length)
+char *
+dstr_append(char *self, const char *other, size_t length)
 {
 	struct string_header *p = (struct string_header *) self - 1;
 	size_t new_length;
 
-	if (p->length > String.max_length - length) {
-		new_length = String.max_length;
+	if (p->length > dstr_max_length - length) {
+		new_length = dstr_max_length;
 	} else {
 		new_length = p->length + length;
 	}
@@ -94,24 +96,15 @@ error:
 	abort();
 }
 
-/* assign: replace a string's contents with those of another string or char[]
+/* dstr_assign: replace a string's contents with those of another string or char[]
  *
  * Public method
  */
-static char *
-assign(char *self, const char *other, size_t length)
+char *
+dstr_assign(char *self, const char *other, size_t length)
 {
 	struct string_header *p = (struct string_header *) self - 1;
 
 	p->length = 0;
-	return append(self, other, length);
+	return dstr_append(self, other, length);
 }
-
-const struct dstring_api String = {
-	.new = new,
-	.delete = delete,
-	.length = length,
-	.assign = assign,
-	.append = append,
-	.max_length = (SIZE_MAX - sizeof (struct string_header) - 1)
-};
