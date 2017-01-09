@@ -4,13 +4,13 @@
 #include <string.h>
 #include <stdint.h>
 
-#define MIN_CAPACITY (sizeof (size_t)) /* For alignment */
-
 struct string_header {
 	size_t capacity;
 	size_t length;
 	char data[];
 };
+
+#define MIN_CAPACITY (sizeof (size_t)) /* For alignment */
 
 const size_t dstr_max_length = (SIZE_MAX - sizeof (struct string_header) - 1);
 
@@ -22,15 +22,15 @@ char *
 dstr_new(size_t capacity)
 {
 	capacity = (capacity > MIN_CAPACITY) ? capacity : MIN_CAPACITY;
-	struct string_header *p = malloc(sizeof *p + capacity + 1);
+	struct string_header *h = malloc(sizeof *h + capacity + 1);
 
-	if (!p) return NULL;
+	if (!h) return NULL;
 
-	p->capacity = capacity;
-	p->length = 0;
-	p->data[0] = '\0';
+	h->capacity = capacity;
+	h->length = 0;
+	h->data[0] = '\0';
 
-	return p->data;
+	return h->data;
 }
 
 /* dstr_delete: free all memory used by a string
@@ -40,8 +40,8 @@ dstr_new(size_t capacity)
 void
 dstr_delete(char *self)
 {
-	struct string_header *p = (struct string_header *) self - 1;
-	free(p);
+	struct string_header *h = (struct string_header *) self - 1;
+	free(h);
 }
 
 /* dstr_length: return the length of a string
@@ -51,11 +51,11 @@ dstr_delete(char *self)
 size_t
 dstr_length(const char *self)
 {
-	struct string_header *p = (struct string_header *) self - 1;
-	return p->length;
+	struct string_header *h = (struct string_header *) self - 1;
+	return h->length;
 }
 
-/* dstr_append: concatenate a string with another string or char[]
+/* dstr_append: append the contents of a char[] to a string
  *
  * If doing so would cause the allocation size to exceed SIZE_MAX, it is
  * silently truncated. The user is expected to check this condition using
@@ -66,28 +66,28 @@ dstr_length(const char *self)
 void
 dstr_append(char **selfp, const char *other, size_t length)
 {
-	struct string_header *p = (struct string_header *) *selfp - 1;
+	struct string_header *h = (struct string_header *) *selfp - 1;
 	size_t new_length;
 
-	if (p->length > dstr_max_length - length) {
+	if (h->length > dstr_max_length - length) {
 		new_length = dstr_max_length;
 	} else {
-		new_length = p->length + length;
+		new_length = h->length + length;
 	}
 
-	if (new_length > p->capacity) {
+	if (new_length > h->capacity) {
 		/* TODO: better resize strategy to reduce reallocs */
-		p = realloc(p, sizeof *p + new_length + 1);
-		if (!p) goto error;
+		h = realloc(h, sizeof *h + new_length + 1);
+		if (!h) goto error;
 
-		p->capacity = new_length;
+		h->capacity = new_length;
 	}
 
-	memmove(&(p->data[p->length]), other, length);
-	p->length = new_length;
-	p->data[p->length] = '\0';
+	memmove(&(h->data[h->length]), other, length);
+	h->length = new_length;
+	h->data[h->length] = '\0';
 
-	*selfp = p->data;
+	*selfp = h->data;
 	return;
 
 error:
@@ -96,15 +96,15 @@ error:
 	abort();
 }
 
-/* dstr_assign: replace a string's contents with those of another string or char[]
+/* dstr_assign: replace a string's contents with those of another char[]
  *
  * Public method
  */
 void
 dstr_assign(char **selfp, const char *other, size_t length)
 {
-	struct string_header *p = (struct string_header *) *selfp - 1;
+	struct string_header *h = (struct string_header *) *selfp - 1;
 
-	p->length = 0;
+	h->length = 0;
 	dstr_append(selfp, other, length);
 }
