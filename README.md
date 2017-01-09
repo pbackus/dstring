@@ -12,25 +12,27 @@ Example
 
 Read an entire file into memory:
 
+	#define array_size(a) (sizeof(a)/sizeof(a[0]))
+
 	char *
 	fslurp(FILE *input)
 	{
-	    char *result = String.new(0);
-	    char linebuf[80]; /* Width of a standard terminal */
+	    char *result = dstr_new(0);
+	    char buf[80];
 	
-	    while (fgets(linebuf, array_size(linebuf), input) != NULL) {
+	    while (fgets(buf, array_size(buf), input) != NULL) {
 	
 	        /* Check for overflow */
-	        if (String.length(result) > DSTRING_MAX_LEN - strlen(linebuf)) {
+	        if (dstr_length(result) > dstr_max_length - strlen(buf)) {
 	            fprintf(stderr, "Error: input exceeds maximum allowed size; "
-	                    "truncating to first %zu bytes.", DSTRING_MAX_LEN);
+	                    "truncating to first %zu bytes.", dstr_max_length);
 	        }
 	
-	        result = String.append(result, linebuf, strlen(linebuf));
+	        dstr_append(&result, buf, strlen(buf));
 	    }
 	
 	    if (ferror(input)) {
-	        String.delete(result);
+	        dstr_delete(result);
 	        return NULL;
 	    }
 	
